@@ -129,3 +129,89 @@ source spec; where they disagreed, the audit resolved it below.]
 - Provider button (full-width secondary): `inline-flex w-full items-center justify-center gap-3 rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-60`
 - Icons: inline SVG, `h-5 w-5` — Google uses official brand colors; GitHub uses `fill="currentColor"`
 - Reusable pattern for any full-width OAuth/secondary action button
+
+### CompletionIndicator
+
+File: `components/profile/CompletionIndicator.tsx`
+Last updated: 2026-06-28
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` (card), `bg-error/5` (missing pills) |
+| Border           | `border border-border` (card), `border border-error/25` (missing pills) |
+| Border radius    | `rounded-xl` (card), `rounded-sm` (missing pills) |
+| Text — primary   | `text-text-primary` |
+| Text — secondary | `text-text-secondary`, `text-error` |
+| Spacing          | `p-6` (padding), `gap-6` (flex items gap), `gap-2` (missing pills gap) |
+| Hover state      | none |
+| Shadow           | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]` |
+| Accent usage     | `stroke-success` / `stroke-error` (circular progress ring stroke), `text-error` (warning labels) |
+
+**Pattern notes:**
+- Represents completeness score using SVG radial path and status colors.
+- Missing required sections are tagged with warning pills for user focus.
+
+### ResumeUpload
+
+File: `components/profile/ResumeUpload.tsx`
+Last updated: 2026-06-28
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` (card), `bg-surface-secondary` (dropzone area), `bg-accent-muted` (upload icon wrapper) |
+| Border           | `border border-border` (card), `border border-dashed border-border-muted` (dropzone) |
+| Border radius    | `rounded-xl` (card & dropzone), `rounded-md` (buttons) |
+| Text — primary   | `text-text-primary` |
+| Text — secondary | `text-text-secondary`, `text-text-muted` |
+| Spacing          | `p-6` (card padding), `py-10 px-4` (dropzone padding), `mt-6 border-t pt-4` (footer spacing), `gap-4` (footer gap) |
+| Hover state      | `hover:bg-surface-tertiary` (dropzone hover), `hover:opacity-90` (generate button hover) |
+| Shadow           | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]` (card), `shadow-sm` (buttons) |
+| Accent usage     | `bg-accent text-accent-foreground` (generate button), `text-accent bg-accent-muted` (upload icon) |
+
+**Pattern notes:**
+- Drag-and-drop dropzone accepts PDF files up to 5MB.
+- Prompts user to auto-generate a resume draft from details when empty.
+
+### ResumePreview
+
+File: `components/profile/ResumePreview.tsx`
+Last updated: 2026-06-28
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` (card & preview details), `bg-surface-secondary` (file container), `bg-red-100` (PDF icon) |
+| Border           | `border border-border` (card, file container & preview container) |
+| Border radius    | `rounded-xl` (card), `rounded-lg` (file & preview containers) |
+| Text — primary   | `text-text-primary` |
+| Text — secondary | `text-text-secondary`, `text-text-muted` |
+| Spacing          | `p-6` (card & preview containers padding), `p-4` (file block padding) |
+| Hover state      | `hover:bg-surface-secondary` (download button hover), `hover:underline` (remove button hover) |
+| Shadow           | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]` (card), `shadow-inner` (preview container) |
+| Accent usage     | `text-red-600` (PDF icon) |
+
+**Pattern notes:**
+- Renders file info and parsed content summary in a styled terminal code editor block (`font-mono text-xs text-text-dark bg-white`).
+- Exposes quick actions like Remove and Download.
+
+### ProfileForm
+
+File: `components/profile/ProfileForm.tsx`
+Last updated: 2026-06-28
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` (card & inputs), `bg-surface-secondary` (work exp card) |
+| Border           | `border border-border` (card, inputs, work exp card) |
+| Border radius    | `rounded-xl` (card), `rounded-lg` (work exp card), `rounded-md` (inputs, buttons) |
+| Text — primary   | `text-text-primary` |
+| Text — secondary | `text-text-secondary`, `text-text-dark` |
+| Spacing          | `p-6` (card padding), `p-4` (work exp card padding), `space-y-8` (sections spacing), `space-y-6` (work exp items spacing) |
+| Hover state      | `hover:bg-surface-secondary` (add/remove buttons), `hover:opacity-90` (save button) |
+| Shadow           | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]` (card), `shadow-sm` (buttons) |
+| Accent usage     | `bg-accent text-accent-foreground` (save button), `text-accent` (add role link, tag text), `bg-accent-muted` (skill tags) |
+
+**Pattern notes:**
+- Comprehensive profile editor including basic, professional, experience, education, and preference fields.
+- Provides interactive adding and deletion of skills, industries, and experience records.
+
+

@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import logo from "@/public/logo.png";
 
@@ -10,6 +13,8 @@ const navItems = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
+
   return (
     <header className="w-full border-b border-border bg-surface">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
@@ -17,16 +22,24 @@ export function Navbar() {
           <Image src={logo} alt="JobPilot" className="h-8 w-auto" priority />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-text-dark transition-colors hover:text-accent"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="hidden h-full items-center gap-8 md:flex">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex h-full items-center text-sm font-medium transition-colors hover:text-accent ${
+                  isActive ? "text-accent" : "text-text-dark"
+                }`}
+              >
+                {item.label}
+                {isActive && (
+                  <span className="absolute bottom-[-21px] left-0 right-0 h-0.5 bg-accent" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         <Link

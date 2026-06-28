@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 1 — Foundation
-**Last completed:** 03 Database Schema
-**Next:** 05 Profile Page — Full UI
+**Phase:** Phase 2 — Profile Page
+**Last completed:** 05 Profile Page — Full UI
+**Next:** 06 Profile Save Logic
 
 ---
 
@@ -22,7 +22,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 2 — Profile Page
 
-- [ ] 05 Profile Page — Full UI
+- [x] 05 Profile Page — Full UI
 - [ ] 06 Profile Save Logic
 - [ ] 07 AI Profile Extraction from Resume
 - [ ] 08 Resume PDF Generation from Profile
@@ -63,6 +63,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - **02 Auth** — Built a minimal `/dashboard` placeholder (email + Sign Out) to make the flow testable now; replaced by the real dashboard in feature 14.
 - **02 Auth** — DEPENDENCY (manual, InsForge dashboard): Google + GitHub providers are enabled, but `allowedRedirectUrls` is empty — `http://localhost:3000/auth/callback` must be added there before OAuth login will succeed at runtime.
 - **Analytics provider removed** — Dashboard analytics should be sourced from InsForge tables (`jobs`, `agent_runs`) rather than a third-party event platform. No analytics SDK/client files should be added.
+- **05 Profile Page — Full UI** — Created the entire Profile page layout and UI matching the design specs, including interactive state management that dynamically updates the circular `CompletionIndicator` score (starts at 70%) as fields are modified.
+- **05 Profile Page — Full UI** — Implemented both `ResumeUpload` (dashed dropzone) and `ResumePreview` (renders parsed document metadata and dynamic text preview block) toggled via client state.
+- **05 Profile Page — Full UI** — Updated the `Navbar` to dynamically underline active nav links (`Dashboard`, `Find Jobs`, `Profile`) on hover and selection using a client-side pathname check.
 
 ---
 
