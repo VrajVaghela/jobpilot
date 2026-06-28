@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Profile Page
-**Last completed:** 05 Profile Page — Full UI
-**Next:** 06 Profile Save Logic
+**Last completed:** 06 Profile Save Logic
+**Next:** 07 AI Profile Extraction from Resume
 
 ---
 
@@ -23,7 +23,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 2 — Profile Page
 
 - [x] 05 Profile Page — Full UI
-- [ ] 06 Profile Save Logic
+- [x] 06 Profile Save Logic
 - [ ] 07 AI Profile Extraction from Resume
 - [ ] 08 Resume PDF Generation from Profile
 
@@ -66,6 +66,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - **05 Profile Page — Full UI** — Created the entire Profile page layout and UI matching the design specs, including interactive state management that dynamically updates the circular `CompletionIndicator` score (starts at 70%) as fields are modified.
 - **05 Profile Page — Full UI** — Implemented both `ResumeUpload` (dashed dropzone) and `ResumePreview` (renders parsed document metadata and dynamic text preview block) toggled via client state.
 - **05 Profile Page — Full UI** — Updated the `Navbar` to dynamically underline active nav links (`Dashboard`, `Find Jobs`, `Profile`) on hover and selection using a client-side pathname check.
+- **06 Profile Save Logic** — Created Server Actions in `actions/profile.ts` for saving profile data (doing on-demand upserts and sanitizing/mapping form fields like experience count and text arrays for seeker preferences) and handling resume file uploads/deletions (uploading PDFs <= 5MB to `resumes/{user_id}/resume.pdf` in InsForge Storage and saving URLs in the DB).
+- **06 Profile Save Logic** — Updated the `app/profile/page.tsx` route to query `profiles` by user ID and pass it down as initial props, falling back to a clean default state with only email pre-filled.
+- **06 Profile Save Logic** — Fixed the `CompletionIndicator` component to show a green success checkmark icon instead of a red warning/alert icon when the profile reaches 100% completeness.
 
 ---
 

@@ -4,55 +4,40 @@ import React, { useState, useMemo } from "react";
 import { CompletionIndicator } from "./CompletionIndicator";
 import { ResumeUpload } from "./ResumeUpload";
 import { ResumePreview } from "./ResumePreview";
-import { ProfileForm, ProfileData } from "./ProfileForm";
+import { ProfileForm } from "./ProfileForm";
+import { ProfileData, saveProfile, uploadResume, deleteResume } from "@/actions/profile";
 
 interface ProfileClientProps {
   userEmail: string;
+  initialProfile: ProfileData;
+  initialResumePdfUrl: string | null;
 }
 
-export function ProfileClient({ userEmail }: ProfileClientProps) {
-  // Initialize profile form state with mock data from designs/profile.png
-  const [profile, setProfile] = useState<ProfileData>({
-    full_name: "Faizan Ali",
-    email: userEmail || "faizan@jsmastery.pro",
-    phone: "", // Missing -> Triggers Needs Attention
-    location: "", // Missing -> Triggers Needs Attention
-    linkedin_url: "https://linkedin.com/in/faizan",
-    portfolio_url: "https://github.com/jsmastery",
-    work_authorization: "citizen",
-    current_title: "Frontend Engineer",
-    experience_level: "junior",
-    years_experience: "4",
-    skills: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
-    industries: [],
-    work_experience: [
-      {
-        id: "vrc-1",
-        company: "Vercel",
-        title: "Frontend Engineer",
-        start_date: "January 2022",
-        end_date: "",
-        currently_working: true,
-        responsibilities: "Built Next.js features and optimized web vitals. Led a team of 3 developers.",
-      },
-    ],
-    education: {
-      highest_degree: "high_school",
-      field_of_study: "Computer Science",
-      institution: "", // Missing -> Triggers Needs Attention
-      graduation_year: "", // Missing -> Triggers Needs Attention
-    },
-    job_titles_seeking: "Frontend Engineer, React Developer",
-    remote_preference: "any",
-    salary_expectation: "",
-    preferred_locations: "",
+export function ProfileClient({ userEmail, initialProfile, initialResumePdfUrl }: ProfileClientProps) {
+  const [profile, setProfile] = useState<ProfileData>(initialProfile);
+
+  // Initialize resume file state from database URL if it exists
+  const [resumeFile, setResumeFile] = useState<{ name: string; size: string; url?: string | null } | null>(() => {
+    if (initialResumePdfUrl) {
+      let name = "resume.pdf";
+      try {
+        const decoded = decodeURIComponent(initialResumePdfUrl);
+        const parts = decoded.split("/");
+        name = parts[parts.length - 1] || "resume.pdf";
+      } catch (e) {}
+      return { name, size: "Uploaded PDF", url: initialResumePdfUrl };
+    }
+    return null;
   });
 
-  // Mock resume upload state
-  const [resumeFile, setResumeFile] = useState<{ name: string; size: string } | null>(null);
+  // Action loading states
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Success alert visibility
+  // Notifications
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Completion percentage and missing tags calculation
   const { percent, missingFields } = useMemo(() => {
@@ -106,8 +91,47 @@ export function ProfileClient({ userEmail }: ProfileClientProps) {
     return { percent: score, missingFields: missing };
   }, [profile]);
 
-  const handleUploadSimulated = (fileName: string, fileSize: string) => {
-    setResumeFile({ name: fileName, size: fileSize });
+  const handleUpload = async (file: File) => {
+    setIsUploading(true);
+    setErrorMessage(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await uploadResume(formData);
+      if (res.success && res.url) {
+        setResumeFile({
+          name: file.name,
+          size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+          url: res.url,
+        });
+      } else {
+        setErrorMessage(res.error || "Failed to upload resume.");
+      }
+    } catch (err) {
+      console.error("[handleUpload] Error uploading resume:", err);
+      setErrorMessage("An unexpected error occurred during upload.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveResume = async () => {
+    setIsDeleting(true);
+    setErrorMessage(null);
+    try {
+      const res = await deleteResume();
+      if (res.success) {
+        setResumeFile(null);
+      } else {
+        setErrorMessage(res.error || "Failed to delete resume.");
+      }
+    } catch (err) {
+      console.error("[handleRemoveResume] Error deleting resume:", err);
+      setErrorMessage("An unexpected error occurred while deleting the resume.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleGenerateSimulated = () => {
@@ -118,10 +142,27 @@ export function ProfileClient({ userEmail }: ProfileClientProps) {
     });
   };
 
-  const handleSave = () => {
-    setSaveSuccess(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setTimeout(() => setSaveSuccess(false), 4000);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveSuccess(false);
+    setErrorMessage(null);
+    try {
+      const res = await saveProfile(profile);
+      if (res.success) {
+        setSaveSuccess(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => setSaveSuccess(false), 4000);
+      } else {
+        setErrorMessage(res.error || "Failed to save profile settings.");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } catch (err) {
+      console.error("[handleSave] Error saving profile:", err);
+      setErrorMessage("An unexpected error occurred while saving your profile.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -143,7 +184,28 @@ export function ProfileClient({ userEmail }: ProfileClientProps) {
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          Profile settings saved successfully (Local Mock State)!
+          Profile settings saved successfully!
+        </div>
+      )}
+
+      {/* Error Alert Banner */}
+      {errorMessage && (
+        <div className="mb-6 rounded-lg border border-error bg-red-50 p-4 text-sm text-red-700 font-semibold flex items-center gap-2 shadow-sm animate-fade-in">
+          <svg
+            className="h-5 w-5 text-red-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          {errorMessage}
         </div>
       )}
 
@@ -156,19 +218,28 @@ export function ProfileClient({ userEmail }: ProfileClientProps) {
           <ResumePreview
             fileName={resumeFile.name}
             fileSize={resumeFile.size}
-            onRemove={() => setResumeFile(null)}
+            url={resumeFile.url}
+            onRemove={handleRemoveResume}
+            isDeleting={isDeleting}
             profileData={profile}
           />
         ) : (
           <ResumeUpload
-            onUploadSimulated={handleUploadSimulated}
+            onUpload={handleUpload}
+            isUploading={isUploading}
             onGenerateSimulated={handleGenerateSimulated}
           />
         )}
 
         {/* Card 3: Main Profile Form */}
-        <ProfileForm initialData={profile} onChange={setProfile} onSave={handleSave} />
+        <ProfileForm 
+          initialData={profile} 
+          onChange={setProfile} 
+          onSave={handleSave} 
+          isSaving={isSaving}
+        />
       </div>
     </div>
   );
 }
+

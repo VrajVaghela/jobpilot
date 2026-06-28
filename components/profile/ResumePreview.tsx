@@ -3,11 +3,13 @@ import React from "react";
 interface ResumePreviewProps {
   fileName: string;
   fileSize: string;
+  url?: string | null;
   onRemove: () => void;
   profileData: any; // Render dynamic mock content preview based on profile fields
+  isDeleting?: boolean;
 }
 
-export function ResumePreview({ fileName, fileSize, onRemove, profileData }: ResumePreviewProps) {
+export function ResumePreview({ fileName, fileSize, url, onRemove, profileData, isDeleting = false }: ResumePreviewProps) {
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -20,10 +22,11 @@ export function ResumePreview({ fileName, fileSize, onRemove, profileData }: Res
         <h2 className="text-base font-semibold text-text-primary">Resume</h2>
         <button
           type="button"
+          disabled={isDeleting}
           onClick={onRemove}
-          className="text-xs font-semibold text-error hover:underline"
+          className="text-xs font-semibold text-error hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Remove
+          {isDeleting ? "Removing..." : "Remove"}
         </button>
       </div>
 
@@ -57,13 +60,25 @@ export function ResumePreview({ fileName, fileSize, onRemove, profileData }: Res
           </div>
         </div>
 
-        <button
-          type="button"
-          className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-secondary shadow-sm transition-colors"
-          onClick={() => alert("Mock PDF download triggered")}
-        >
-          Download
-        </button>
+        {url ? (
+          <a
+            href={url}
+            download={fileName}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-secondary shadow-sm transition-colors"
+          >
+            Download
+          </a>
+        ) : (
+          <button
+            type="button"
+            className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-secondary shadow-sm transition-colors"
+            onClick={() => alert("Mock PDF download triggered")}
+          >
+            Download
+          </button>
+        )}
       </div>
 
       {/* Mock Document Render Container */}
