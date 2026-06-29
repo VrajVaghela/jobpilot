@@ -2,11 +2,17 @@ import React from "react";
 
 export function SearchControls() {
   return (
-    <div className="w-full rounded-2xl border border-border bg-surface p-6 shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]">
+    <form
+      onSubmit={(e) => e.preventDefault()}
+      className="w-full rounded-2xl border border-border bg-surface p-6 shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]"
+    >
       <div className="flex flex-col gap-4 md:flex-row md:items-end">
         {/* Job Title */}
         <div className="flex-1">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
+          <label
+            htmlFor="job-title"
+            className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2"
+          >
             Job Title
           </label>
           <div className="relative">
@@ -16,17 +22,20 @@ export function SearchControls() {
               </svg>
             </span>
             <input
+              id="job-title"
               type="text"
               placeholder="Frontend Engineer"
               className="w-full bg-surface border border-border rounded-lg pl-10 pr-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
-              readOnly
             />
           </div>
         </div>
 
         {/* Location */}
         <div className="flex-1">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
+          <label
+            htmlFor="location"
+            className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2"
+          >
             Location
           </label>
           <div className="relative">
@@ -38,10 +47,10 @@ export function SearchControls() {
               </svg>
             </span>
             <input
+              id="location"
               type="text"
               placeholder="Remote, New York..."
               className="w-full bg-surface border border-border rounded-lg pl-10 pr-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
-              readOnly
             />
           </div>
         </div>
@@ -49,7 +58,7 @@ export function SearchControls() {
         {/* Find Jobs Button */}
         <div>
           <button
-            type="button"
+            type="submit"
             className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90 cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -67,6 +76,6 @@ export function SearchControls() {
         </svg>
         <span>Found 8 jobs and saved 4 strong matches.</span>
       </div>
-    </div>
+    </form>
   );
 }
