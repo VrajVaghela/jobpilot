@@ -1,19 +1,66 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 const MATCH_OPTIONS = ["All Matches", "Strong Matches (85%+)", "Good Matches (70-84%)"];
 const SORT_OPTIONS = ["Match Score", "Highest First", "Lowest First"];
 
+const MATCH_MAP: Record<string, string> = {
+  "All Matches": "all",
+  "Strong Matches (85%+)": "strong",
+  "Good Matches (70-84%)": "good",
+};
+
+const REVERSE_MATCH_MAP: Record<string, string> = {
+  all: "All Matches",
+  strong: "Strong Matches (85%+)",
+  good: "Good Matches (70-84%)",
+};
+
+const SORT_MAP: Record<string, string> = {
+  "Match Score": "score",
+  "Highest First": "newest",
+  "Lowest First": "oldest",
+};
+
+const REVERSE_SORT_MAP: Record<string, string> = {
+  score: "Match Score",
+  newest: "Highest First",
+  oldest: "Lowest First",
+};
+
 export function JobFilters() {
-  const [searchValue, setSearchValue] = useState("");
-  const [selectedMatch, setSelectedMatch] = useState("All Matches");
-  const [selectedSort, setSelectedSort] = useState("Match Score");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const queryQ = searchParams.get("q") || "";
+  const queryMatch = searchParams.get("match") || "all";
+  const querySort = searchParams.get("sort") || "score";
+
+  const [searchValue, setSearchValue] = useState(queryQ);
+  const [selectedMatch, setSelectedMatch] = useState(REVERSE_MATCH_MAP[queryMatch] || "All Matches");
+  const [selectedSort, setSelectedSort] = useState(REVERSE_SORT_MAP[querySort] || "Match Score");
+  
   const [isMatchDropdownOpen, setIsMatchDropdownOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
 
   const matchRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
+
+  // Sync state if URL query params change externally
+  useEffect(() => {
+    setSearchValue(queryQ);
+  }, [queryQ]);
+
+  useEffect(() => {
+    setSelectedMatch(REVERSE_MATCH_MAP[queryMatch] || "All Matches");
+  }, [queryMatch]);
+
+  useEffect(() => {
+    setSelectedSort(REVERSE_SORT_MAP[querySort] || "Match Score");
+  }, [querySort]);
 
   // Close dropdowns if user clicks outside of them
   useEffect(() => {
@@ -44,6 +91,34 @@ export function JobFilters() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  // Helper to push updated search parameters to the URL
+  const updateParams = (newParams: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(newParams)) {
+      if (value === null) {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // Debounce the text search input parameter change (300ms)
+  useEffect(() => {
+    const currentQ = searchParams.get("q") || "";
+    if (searchValue === currentQ) return;
+
+    const timer = setTimeout(() => {
+      updateParams({
+        q: searchValue.trim() || null,
+        page: "1", // reset to page 1
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchValue]);
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
@@ -92,8 +167,13 @@ export function JobFilters() {
                   role="option"
                   aria-selected={selectedMatch === option}
                   onClick={() => {
+                    const mappedValue = MATCH_MAP[option];
                     setSelectedMatch(option);
                     setIsMatchDropdownOpen(false);
+                    updateParams({
+                      match: mappedValue === "all" ? null : mappedValue,
+                      page: "1",
+                    });
                   }}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-surface-secondary cursor-pointer ${
                     selectedMatch === option ? "text-accent font-semibold" : "text-text-primary font-medium"
@@ -133,8 +213,13 @@ export function JobFilters() {
                   role="option"
                   aria-selected={selectedSort === option}
                   onClick={() => {
+                    const mappedValue = SORT_MAP[option];
                     setSelectedSort(option);
                     setIsSortDropdownOpen(false);
+                    updateParams({
+                      sort: mappedValue === "score" ? null : mappedValue,
+                      page: "1",
+                    });
                   }}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-surface-secondary cursor-pointer ${
                     selectedSort === option ? "text-accent font-semibold" : "text-text-primary font-medium"

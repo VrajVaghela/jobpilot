@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 3 — Find Jobs Page
-**Last completed:** 09 Find Jobs Page — Full UI
-**Next:** 10 Adzuna Job Discovery
+**Last completed:** 10 Adzuna Job Discovery
+**Next:** 11 Filter + Sort + Pagination
 
 ---
 
@@ -30,8 +30,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 3 — Find Jobs Page
 
 - [x] 09 Find Jobs Page — Full UI
-- [ ] 10 Adzuna Job Discovery
-- [ ] 11 Filter + Sort + Pagination
+- [x] 10 Adzuna Job Discovery
+- [x] 11 Filter + Sort + Pagination
 
 ### Phase 4 — Job Details Page
 
@@ -75,6 +75,8 @@ Update this file after every completed feature. Any AI agent reading this should
 - **08 Resume PDF Generation from Profile** — Created Route Handler at `app/api/resume/generate/route.tsx` utilizing `@react-pdf/renderer` and Gemini 2.5 Flash to polish professional summary and bullet points on-the-fly, generating a clean single-page PDF structure and saving it to InsForge storage.
 - **08 Resume PDF Generation from Profile** — Used `.tsx` extension for route to support JSX PDF layout elements and adjusted `next.config.ts` to declare `@react-pdf/renderer` as a `serverExternalPackages` dependency.
 - **08 Resume PDF Generation from Profile** — Resolved a bug where react-pdf's `toBuffer()` returned a stream rather than a raw buffer in Next.js server context, leading to corrupted PDF uploads. Stream is now read into chunks, concatenated, and cast to `Uint8Array` for upload.
+- **10 Adzuna Job Discovery** — Created `lib/adzuna.ts` with country code mapping and search service helpers, `agent/adzuna.ts` managing runs, log records, and batch Gemini 2.5 Flash matching (concurrency = 3), and POST `/api/agent/find` route handler. Wired `<SearchControls />` client form to submit requests and trigger Next.js page refresh fetching real `jobs` records.
+- **11 Filter + Sort + Pagination** — Connected filter dropdowns (All, Strong, Good matches), sort order dropdowns (Match Score, Newest, Oldest), text search filter, and page controls to database queries on the server. Applied a client-side 300ms debounce on search input changes and reset page indices to 1 on filter/sort changes.
 
 ---
 
