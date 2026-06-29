@@ -84,11 +84,13 @@ export function JobFilters() {
           </button>
 
           {isMatchDropdownOpen && (
-            <div className="absolute right-0 mt-1 w-56 rounded-lg border border-border bg-surface py-1 shadow-lg z-50">
+            <div role="listbox" className="absolute right-0 mt-1 w-56 rounded-lg border border-border bg-surface py-1 shadow-lg z-50">
               {MATCH_OPTIONS.map((option) => (
                 <button
                   key={option}
                   type="button"
+                  role="option"
+                  aria-selected={selectedMatch === option}
                   onClick={() => {
                     setSelectedMatch(option);
                     setIsMatchDropdownOpen(false);
@@ -123,11 +125,13 @@ export function JobFilters() {
           </button>
 
           {isSortDropdownOpen && (
-            <div className="absolute right-0 mt-1 w-44 rounded-lg border border-border bg-surface py-1 shadow-lg z-50">
+            <div role="listbox" className="absolute right-0 mt-1 w-44 rounded-lg border border-border bg-surface py-1 shadow-lg z-50">
               {SORT_OPTIONS.map((option) => (
                 <button
                   key={option}
                   type="button"
+                  role="option"
+                  aria-selected={selectedSort === option}
                   onClick={() => {
                     setSelectedSort(option);
                     setIsSortDropdownOpen(false);

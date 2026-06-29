@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 export function SearchControls() {
@@ -23,6 +25,7 @@ export function SearchControls() {
             </span>
             <input
               id="job-title"
+              name="jobTitle"
               type="text"
               placeholder="Frontend Engineer"
               className="w-full bg-surface border border-border rounded-lg pl-10 pr-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
@@ -48,6 +51,7 @@ export function SearchControls() {
             </span>
             <input
               id="location"
+              name="location"
               type="text"
               placeholder="Remote, New York..."
               className="w-full bg-surface border border-border rounded-lg pl-10 pr-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
