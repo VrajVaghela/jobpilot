@@ -2,6 +2,9 @@
 
 import React, { useState, useRef, useEffect } from "react";
 
+const MATCH_OPTIONS = ["All Matches", "Strong Matches (85%+)", "Good Matches (70-84%)"];
+const SORT_OPTIONS = ["Match Score", "Highest First", "Lowest First"];
+
 export function JobFilters() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedMatch, setSelectedMatch] = useState("All Matches");
@@ -28,8 +31,19 @@ export function JobFilters() {
     };
   }, []);
 
-  const matchOptions = ["All Matches", "Strong Matches (85%+)", "Good Matches (70-84%)"];
-  const sortOptions = ["Match Score", "Highest First", "Lowest First"];
+  // Close dropdowns if user presses the Escape key
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMatchDropdownOpen(false);
+        setIsSortDropdownOpen(false);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
@@ -59,7 +73,9 @@ export function JobFilters() {
               setIsMatchDropdownOpen(!isMatchDropdownOpen);
               setIsSortDropdownOpen(false);
             }}
-            className="inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface-secondary cursor-pointer min-w-[130px]"
+            aria-haspopup="listbox"
+            aria-expanded={isMatchDropdownOpen}
+            className="inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface-secondary cursor-pointer min-w-[130px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <span>{selectedMatch}</span>
             <svg className={`w-4 h-4 text-text-secondary transition-transform ${isMatchDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -69,7 +85,7 @@ export function JobFilters() {
 
           {isMatchDropdownOpen && (
             <div className="absolute right-0 mt-1 w-56 rounded-lg border border-border bg-surface py-1 shadow-lg z-50">
-              {matchOptions.map((option) => (
+              {MATCH_OPTIONS.map((option) => (
                 <button
                   key={option}
                   type="button"
@@ -96,7 +112,9 @@ export function JobFilters() {
               setIsSortDropdownOpen(!isSortDropdownOpen);
               setIsMatchDropdownOpen(false);
             }}
-            className="inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface-secondary cursor-pointer min-w-[130px]"
+            aria-haspopup="listbox"
+            aria-expanded={isSortDropdownOpen}
+            className="inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface-secondary cursor-pointer min-w-[130px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <span>{selectedSort}</span>
             <svg className={`w-4 h-4 text-text-secondary transition-transform ${isSortDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -106,7 +124,7 @@ export function JobFilters() {
 
           {isSortDropdownOpen && (
             <div className="absolute right-0 mt-1 w-44 rounded-lg border border-border bg-surface py-1 shadow-lg z-50">
-              {sortOptions.map((option) => (
+              {SORT_OPTIONS.map((option) => (
                 <button
                   key={option}
                   type="button"
