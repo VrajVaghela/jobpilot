@@ -34,9 +34,13 @@ export function ProfileClient({ userEmail, initialProfile, initialResumePdfUrl }
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Notifications
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [extractSuccess, setExtractSuccess] = useState(false);
+  const [generateSuccess, setGenerateSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Completion percentage and missing tags calculation
@@ -134,12 +138,62 @@ export function ProfileClient({ userEmail, initialProfile, initialResumePdfUrl }
     }
   };
 
-  const handleGenerateSimulated = () => {
-    // Generate a mock resume from profile data
-    setResumeFile({
-      name: `${profile.full_name.toLowerCase().replace(/\s+/g, "_")}_resume.pdf`,
-      size: "1.2 MB",
-    });
+  const handleGenerateResume = async () => {
+    setIsGenerating(true);
+    setGenerateSuccess(false);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/resume/generate", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.url) {
+        setResumeFile({
+          name: data.fileName || `${profile.full_name.toLowerCase().replace(/\s+/g, "_")}_resume.pdf`,
+          size: "Generated PDF",
+          url: data.url,
+        });
+        setGenerateSuccess(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => setGenerateSuccess(false), 5000);
+      } else {
+        setErrorMessage(data.error || "Failed to generate resume PDF.");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } catch (err) {
+      console.error("[handleGenerateResume] Error generating resume:", err);
+      setErrorMessage("An unexpected error occurred while generating the resume PDF.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleExtract = async () => {
+    setIsExtracting(true);
+    setExtractSuccess(false);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/resume/extract", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.profile) {
+        setProfile(data.profile);
+        setExtractSuccess(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => setExtractSuccess(false), 5000);
+      } else {
+        setErrorMessage(data.error || "Failed to extract profile details from the resume.");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } catch (err) {
+      console.error("[handleExtract] Error extracting profile:", err);
+      setErrorMessage("An unexpected error occurred during profile extraction.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setIsExtracting(false);
+    }
   };
 
   const handleSave = async () => {
@@ -188,6 +242,48 @@ export function ProfileClient({ userEmail, initialProfile, initialResumePdfUrl }
         </div>
       )}
 
+      {/* Extract Success Banner */}
+      {extractSuccess && (
+        <div className="mb-6 rounded-lg border border-success-alt bg-success-lightest p-4 text-sm text-success-foreground font-semibold flex items-center gap-2 shadow-sm animate-fade-in">
+          <svg
+            className="h-5 w-5 text-success"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          Resume parsed successfully! Form fields below have been updated. Review and click "Save Profile" to save.
+        </div>
+      )}
+
+      {/* Generate Success Banner */}
+      {generateSuccess && (
+        <div className="mb-6 rounded-lg border border-success-alt bg-success-lightest p-4 text-sm text-success-foreground font-semibold flex items-center gap-2 shadow-sm animate-fade-in">
+          <svg
+            className="h-5 w-5 text-success"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          Resume PDF generated successfully from your profile details!
+        </div>
+      )}
+
       {/* Error Alert Banner */}
       {errorMessage && (
         <div className="mb-6 rounded-lg border border-error bg-red-50 p-4 text-sm text-red-700 font-semibold flex items-center gap-2 shadow-sm animate-fade-in">
@@ -222,12 +318,15 @@ export function ProfileClient({ userEmail, initialProfile, initialResumePdfUrl }
             onRemove={handleRemoveResume}
             isDeleting={isDeleting}
             profileData={profile}
+            onExtract={handleExtract}
+            isExtracting={isExtracting}
           />
         ) : (
           <ResumeUpload
             onUpload={handleUpload}
             isUploading={isUploading}
-            onGenerateSimulated={handleGenerateSimulated}
+            onGenerate={handleGenerateResume}
+            isGenerating={isGenerating}
           />
         )}
 

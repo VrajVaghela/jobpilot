@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Profile Page
-**Last completed:** 06 Profile Save Logic
-**Next:** 07 AI Profile Extraction from Resume
+**Last completed:** 08 Resume PDF Generation from Profile
+**Next:** 09 Find Jobs Page — Full UI
 
 ---
 
@@ -24,8 +24,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - [x] 05 Profile Page — Full UI
 - [x] 06 Profile Save Logic
-- [ ] 07 AI Profile Extraction from Resume
-- [ ] 08 Resume PDF Generation from Profile
+- [x] 07 AI Profile Extraction from Resume
+- [x] 08 Resume PDF Generation from Profile
 
 ### Phase 3 — Find Jobs Page
 
@@ -69,6 +69,12 @@ Update this file after every completed feature. Any AI agent reading this should
 - **06 Profile Save Logic** — Created Server Actions in `actions/profile.ts` for saving profile data (doing on-demand upserts and sanitizing/mapping form fields like experience count and text arrays for seeker preferences) and handling resume file uploads/deletions (uploading PDFs <= 5MB to `resumes/{user_id}/resume.pdf` in InsForge Storage and saving URLs in the DB).
 - **06 Profile Save Logic** — Updated the `app/profile/page.tsx` route to query `profiles` by user ID and pass it down as initial props, falling back to a clean default state with only email pre-filled.
 - **06 Profile Save Logic** — Fixed the `CompletionIndicator` component to show a green success checkmark icon instead of a red warning/alert icon when the profile reaches 100% completeness.
+- **07 AI Profile Extraction from Resume** — Created Route Handler at `app/api/resume/extract/route.ts` to download PDF resumes from storage, parse them using the class-based API of modern `pdf-parse` (v2.4.5), and extract structured profile JSON via the Gemini API.
+- **07 AI Profile Extraction from Resume** — Used `gemini-2.5-flash` as it is fully compatible with the new secure `AQ.` API key format in the `v1beta` endpoint (which threw a 404 for `gemini-1.5-flash`).
+- **07 AI Profile Extraction from Resume** — Added a loader, extraction success banners, and action triggers to `ResumePreview.tsx` and `ProfileClient.tsx`.
+- **08 Resume PDF Generation from Profile** — Created Route Handler at `app/api/resume/generate/route.tsx` utilizing `@react-pdf/renderer` and Gemini 2.5 Flash to polish professional summary and bullet points on-the-fly, generating a clean single-page PDF structure and saving it to InsForge storage.
+- **08 Resume PDF Generation from Profile** — Used `.tsx` extension for route to support JSX PDF layout elements and adjusted `next.config.ts` to declare `@react-pdf/renderer` as a `serverExternalPackages` dependency.
+- **08 Resume PDF Generation from Profile** — Resolved a bug where react-pdf's `toBuffer()` returned a stream rather than a raw buffer in Next.js server context, leading to corrupted PDF uploads. Stream is now read into chunks, concatenated, and cast to `Uint8Array` for upload.
 
 ---
 
