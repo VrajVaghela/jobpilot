@@ -14,8 +14,9 @@ export function JobsPagination() {
       <div className="flex items-center gap-1.5 self-end sm:self-auto">
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text-secondary hover:bg-surface-secondary cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text-secondary hover:bg-surface-secondary cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed"
           disabled
+          aria-label="Go to previous page"
         >
           Previous
         </button>
@@ -24,6 +25,7 @@ export function JobsPagination() {
         <button
           type="button"
           className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent-light text-accent text-sm font-semibold cursor-pointer"
+          aria-current="page"
         >
           1
         </button>
@@ -56,6 +58,7 @@ export function JobsPagination() {
         <button
           type="button"
           className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text-primary hover:bg-surface-secondary cursor-pointer"
+          aria-label="Go to next page"
         >
           Next
         </button>
