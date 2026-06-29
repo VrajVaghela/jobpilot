@@ -45,58 +45,87 @@ export function JobsTable({ jobs }: JobsTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {jobs.map((job) => (
-              <tr
-                key={job.id}
-                className="hover:bg-surface-secondary transition-colors"
-              >
-                {/* Company info */}
-                <td className="whitespace-nowrap px-6 py-5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-secondary text-text-secondary">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                    </div>
-                    <span className="font-semibold text-text-primary text-sm">
-                      {job.company}
-                    </span>
-                  </div>
-                </td>
-
-                {/* Role */}
-                <td className="px-6 py-5 text-sm font-medium text-text-primary">
-                  {job.role}
-                </td>
-
-                {/* Match Score Progress block */}
-                <td className="whitespace-nowrap px-6 py-5">
-                  <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-border">
-                      <div
-                        className={`h-full rounded-full ${getScoreColorClass(
-                          job.matchScore
-                        )}`}
-                        style={{ width: `${job.matchScore}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-semibold text-text-primary">
-                      {job.matchScore}%
-                    </span>
-                  </div>
-                </td>
-
-                {/* Salary Est */}
-                <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-text-primary">
-                  {job.salaryEst}
-                </td>
-
-                {/* Date Found */}
-                <td className="whitespace-nowrap px-6 py-5 text-sm text-text-secondary">
-                  {job.dateFound}
+            {jobs.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-6 py-10 text-center text-sm text-text-secondary font-medium"
+                >
+                  No jobs found matching your criteria.
                 </td>
               </tr>
-            ))}
+            ) : (
+              jobs.map((job) => (
+                <tr
+                  key={job.id}
+                  className="hover:bg-surface-secondary transition-colors"
+                >
+                  {/* Company info */}
+                  <td className="whitespace-nowrap px-6 py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-secondary text-text-secondary">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                          />
+                        </svg>
+                      </div>
+                      <span className="font-semibold text-text-primary text-sm">
+                        {job.company}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Role */}
+                  <td className="px-6 py-5 text-sm font-medium text-text-primary">
+                    {job.role}
+                  </td>
+
+                  {/* Match Score Progress block */}
+                  <td className="whitespace-nowrap px-6 py-5">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="h-1.5 w-24 overflow-hidden rounded-full bg-border"
+                        role="progressbar"
+                        aria-valuenow={job.matchScore}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${job.company} match score progress`}
+                      >
+                        <div
+                          className={`h-full rounded-full ${getScoreColorClass(
+                            job.matchScore
+                          )}`}
+                          style={{ width: `${job.matchScore}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold text-text-primary">
+                        {job.matchScore}%
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Salary Est */}
+                  <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-text-primary">
+                    {job.salaryEst}
+                  </td>
+
+                  {/* Date Found */}
+                  <td className="whitespace-nowrap px-6 py-5 text-sm text-text-secondary">
+                    {job.dateFound}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
