@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export interface JobRow {
   id: string;
@@ -87,7 +88,12 @@ export function JobsTable({ jobs }: JobsTableProps) {
 
                   {/* Role */}
                   <td className="px-6 py-5 text-sm font-medium text-text-primary">
-                    {job.role}
+                    <Link
+                      href={`/find-jobs/${job.id}`}
+                      className="hover:text-accent hover:underline transition-colors"
+                    >
+                      {job.role}
+                    </Link>
                   </td>
 
                   {/* Match Score Progress block */}

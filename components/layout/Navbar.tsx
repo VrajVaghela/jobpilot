@@ -35,7 +35,7 @@ export function Navbar() {
               >
                 {item.label}
                 {isActive && (
-                  <span className="absolute bottom-[-21px] left-0 right-0 h-0.5 bg-accent" />
+                  <span className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-accent" />
                 )}
               </Link>
             );

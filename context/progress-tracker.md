@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 3 — Find Jobs Page
-**Last completed:** 10 Adzuna Job Discovery
-**Next:** 11 Filter + Sort + Pagination
+**Phase:** Phase 4 — Job Details Page
+**Last completed:** 12 Job Details Page — Full UI
+**Next:** 13 Company Research Agent
 
 ---
 
@@ -35,7 +35,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 4 — Job Details Page
 
-- [ ] 12 Job Details Page — Full UI
+- [x] 12 Job Details Page — Full UI
 - [ ] 13 Company Research Agent
 
 ### Phase 5 — Dashboard
@@ -77,6 +77,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - **08 Resume PDF Generation from Profile** — Resolved a bug where react-pdf's `toBuffer()` returned a stream rather than a raw buffer in Next.js server context, leading to corrupted PDF uploads. Stream is now read into chunks, concatenated, and cast to `Uint8Array` for upload.
 - **10 Adzuna Job Discovery** — Created `lib/adzuna.ts` with country code mapping and search service helpers, `agent/adzuna.ts` managing runs, log records, and batch Gemini 2.5 Flash matching (concurrency = 3), and POST `/api/agent/find` route handler. Wired `<SearchControls />` client form to submit requests and trigger Next.js page refresh fetching real `jobs` records.
 - **11 Filter + Sort + Pagination** — Connected filter dropdowns (All, Strong, Good matches), sort order dropdowns (Match Score, Newest, Oldest), text search filter, and page controls to database queries on the server. Applied a client-side 300ms debounce on search input changes and reset page indices to 1 on filter/sort changes.
+- **12 Job Details Page — Full UI** — Created the dynamic details page `app/find-jobs/[id]/page.tsx` and linked jobs table roles to it. Styled the page to match `job-details.png` layout. Resolved truncated description texts from the Adzuna API using a bottom fade-out gradient overlay and a direct link to the original listing.
 
 ---
 
