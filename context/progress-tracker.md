@@ -4,11 +4,11 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ---
 
-## Current Status
+### Current Status
 
 **Phase:** Phase 5 — Dashboard
-**Last completed:** 15 Stats Bar — Real Data
-**Next:** 16 Recent Activity — Real Data
+**Last completed:** 16 Recent Activity — Real Data
+**Next:** 17 Analytics Charts — Real Data
 
 ---
 
@@ -42,7 +42,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - [x] 14 Dashboard Page — Full UI
 - [x] 15 Stats Bar — Real Data
-- [ ] 16 Recent Activity — Real Data
+- [x] 16 Recent Activity — Real Data
 - [ ] 17 Analytics Charts — Real Data
 
 ---
@@ -81,9 +81,9 @@ Update this file after every completed feature. Any AI agent reading this should
 - **13 Company Research Agent** — Added `agent/research.ts` orchestrator that derives the employer homepage URL by following the Adzuna `redirect_url` (stripping subdomains, falling back to `www.{company}.com`), opens a single Browserbase session via Stagehand v3 (model `openai/gpt-4o`), extracts the homepage + up to 3 same-domain sub-pages (sorted by kind priority: engineering > product > about > blog > team > careers > other), closes the session, and synthesizes the 9-field dossier with Gemini 2.5 Flash (`temperature: 0.4`) using a `responseSchema`. Wrote `lib/browserbase.ts` + `lib/stagehand.ts` thin helpers and `POST /api/agent/research` route (auth + ownership check + idempotency short-circuit when `company_research` already exists). Built `components/job-details/CompanyResearch.tsx` Client Component that renders empty state + button, in-flight spinner card, dossier with sectioned rendering for all 9 fields (Your Edge in accent + emerald dots, Gaps to Address in amber, Smart Questions in accent, Sources as small links), and inline error + Retry on failure. Replaced the inline Company Research card markup in the details page.
 - **13 Company Research Agent** — Stagehand v3 API uses `model: { modelName, apiKey }` (not v2's `modelName` + `modelClientOptions`), `stagehand.extract(instruction, schema)` lives on the Stagehand instance, the page comes from `stagehand.context.pages()[0]`, and `page.goto()` takes `timeoutMs` (not `timeout`).
 - **13 Company Research Agent** — Stayed on Gemini 2.5 Flash for synthesis (matches the Adzuna scoring pattern) while Stagehand uses `gpt-4o` for its browser reasoning — added `OPENAI_API_KEY`, `BROWSERBASE_API_KEY`, `BROWSERBASE_PROJECT_ID` as required env vars. The agent always writes a dossier — if browser research fails or Browserbase is unconfigured, Gemini synthesizes from the job posting and profile alone with an empty `sources` array.
-
 - **14 Dashboard Page — Full UI** — Installed `recharts` (using `--legacy-peer-deps` to preserve React 19 / Next.js 16 environment). Designed client chart components (`ResumeTailoringChart.tsx`, `JobsFoundChart.tsx`, `MatchScoreChart.tsx`) styled precisely with design token colors (stroke width, grids, font size, axes) and embedded custom tooltips. Created `components/dashboard/DashboardClient.tsx` client wrapper rendering the top welcome header, custom action links (`/find-jobs`, `/profile`), 4 stat cards with green growth badges, recent activity list (5 entries) using custom activity dots (outer-ring + inner-dot), and the 3 dynamic charts imported with `ssr: false` to eliminate hydration mismatch warnings. Overwrote `app/dashboard/page.tsx` as a Server Component querying `profiles` table to fetch `is_complete` status, rendering Navbar, DashboardClient, and Footer in-line.
 - **15 Stats Bar — Real Data** — Extracted the inline stats cards from `DashboardClient` into a modular `components/dashboard/StatsBar.tsx` component. Configured parallel query execution (`Promise.all`) inside the server component `app/dashboard/page.tsx` to retrieve: user's total jobs count, matching scores to calculate average match rate in JS, count of researched jobs (`company_research` not null), and count of jobs created within the last 7 days. Omitted dynamic trend badges to optimize DB overhead, setting static subtitles instead.
+- **16 Recent Activity — Real Data** — Wired recent activity feed to real database records. Queried `agent_runs` table and `jobs` table (where `company_research` is not null) in parallel, merged them on the server, sorted by timestamp descending, and formatted them into human-readable strings with relative "time ago" timestamps on the server. Mapped activity types to custom dot styles (green for successful discovery runs, blue/purple for completed company research, red for failed runs) and handled the empty feed state.
 
 ---
 

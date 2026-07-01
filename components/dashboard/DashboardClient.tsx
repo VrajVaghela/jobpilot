@@ -44,6 +44,13 @@ const MatchScoreChart = dynamic(
   }
 );
 
+interface ActivityItem {
+  id: string;
+  type: "found" | "researched" | "failed" | "running";
+  text: string;
+  timestamp: string;
+}
+
 interface DashboardClientProps {
   userEmail: string | undefined;
   isProfileComplete: boolean;
@@ -53,58 +60,31 @@ interface DashboardClientProps {
     companiesResearched: number;
     jobsThisWeek: number;
   };
+  activities: ActivityItem[];
 }
 
-export function DashboardClient({ userEmail, isProfileComplete, stats }: DashboardClientProps) {
+export function DashboardClient({ userEmail, isProfileComplete, stats, activities }: DashboardClientProps) {
   const username = userEmail ? userEmail.split("@")[0] : "Developer";
-
-  // Mock activity entries
-  const activities = [
-    {
-      id: 1,
-      type: "tailored", // outer: #F3E8FF, inner: #7C5CFC
-      text: "Tailored resume for Senior Frontend Developer at Vercel",
-      timestamp: "2 hours ago",
-    },
-    {
-      id: 2,
-      type: "letter", // outer: #DBEAFE, inner: #61A8FF
-      text: "Generated cover letter for Product Designer at Stripe",
-      timestamp: "5 hours ago",
-    },
-    {
-      id: 3,
-      type: "found", // outer: #D0FAE5, inner: #00BC7D
-      text: "Found 18 matching jobs for 'React Developer'",
-      timestamp: "Yesterday",
-    },
-    {
-      id: 4,
-      type: "found",
-      text: "Completed company research dossier for Supabase",
-      timestamp: "1 day ago",
-    },
-    {
-      id: 5,
-      type: "tailored",
-      text: "Tailored resume for Full Stack Engineer at Linear",
-      timestamp: "2 days ago",
-    },
-  ];
 
   // Render correct dot color depending on activity type
   const renderActivityDot = (type: string) => {
     switch (type) {
-      case "tailored":
+      case "researched":
         return (
           <div className="relative flex h-4 w-4 items-center justify-center rounded-full border-2 border-surface bg-[#F3E8FF] shadow-sm">
             <div className="h-2 w-2 rounded-full bg-[#7C5CFC]" />
           </div>
         );
-      case "letter":
+      case "running":
         return (
           <div className="relative flex h-4 w-4 items-center justify-center rounded-full border-2 border-surface bg-[#DBEAFE] shadow-sm">
-            <div className="h-2 w-2 rounded-full bg-[#61A8FF]" />
+            <div className="h-2 w-2 rounded-full bg-[#61A8FF] animate-pulse" />
+          </div>
+        );
+      case "failed":
+        return (
+          <div className="relative flex h-4 w-4 items-center justify-center rounded-full border-2 border-surface bg-red-100 shadow-sm">
+            <div className="h-2 w-2 rounded-full bg-red-500" />
           </div>
         );
       case "found":
@@ -236,32 +216,46 @@ export function DashboardClient({ userEmail, isProfileComplete, stats }: Dashboa
               </p>
             </div>
             <div className="flex-1 flow-root">
-              <ul className="-mb-8">
-                {activities.map((activity, activityIdx) => (
-                  <li key={activity.id}>
-                    <div className="relative pb-8">
-                      {activityIdx !== activities.length - 1 ? (
-                        <span className="absolute top-4 left-2.5 -ml-px h-full w-0.5 bg-border" aria-hidden="true" />
-                      ) : null}
-                      <div className="relative flex space-x-3">
-                        <div className="flex h-5 items-center">
-                          {renderActivityDot(activity.type)}
-                        </div>
-                        <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-0.5">
-                          <div>
-                            <p className="text-sm text-text-primary font-medium">
-                              {activity.text}
-                            </p>
+              {activities.length === 0 ? (
+                <div className="flex h-48 flex-col items-center justify-center text-center">
+                  <div className="rounded-full bg-surface-secondary p-3 text-text-muted">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="mt-2 text-sm font-semibold text-text-primary">No recent activity</h3>
+                  <p className="mt-1 text-xs text-text-muted">
+                    Start searching for jobs or request company research.
+                  </p>
+                </div>
+              ) : (
+                <ul className="-mb-8">
+                  {activities.map((activity, activityIdx) => (
+                    <li key={activity.id}>
+                      <div className="relative pb-8">
+                        {activityIdx !== activities.length - 1 ? (
+                          <span className="absolute top-4 left-2.5 -ml-px h-full w-0.5 bg-border" aria-hidden="true" />
+                        ) : null}
+                        <div className="relative flex space-x-3">
+                          <div className="flex h-5 items-center">
+                            {renderActivityDot(activity.type)}
                           </div>
-                          <div className="whitespace-nowrap text-right text-[12px] text-text-muted">
-                            <time>{activity.timestamp}</time>
+                          <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-0.5">
+                            <div>
+                              <p className="text-sm text-text-primary font-medium">
+                                {activity.text}
+                              </p>
+                            </div>
+                            <div className="whitespace-nowrap text-right text-[12px] text-text-muted pl-2">
+                              <time>{activity.timestamp}</time>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
