@@ -214,4 +214,27 @@ Last updated: 2026-06-28
 - Comprehensive profile editor including basic, professional, experience, education, and preference fields.
 - Provides interactive adding and deletion of skills, industries, and experience records.
 
+### DashboardClient
+
+File: `components/dashboard/DashboardClient.tsx`
+Last updated: 2026-07-01
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` (cards), `bg-warning/10` (incomplete banner), `bg-background` (stat icons) |
+| Border           | `border border-border` (cards), `border border-warning/20` (incomplete banner), `bg-border` (timeline connector line) |
+| Border radius    | `rounded-xl` (cards & banner), `rounded-md` (buttons), `rounded-[4px]` (trend badges), `rounded-lg` (stat icons) |
+| Text — primary   | `text-text-primary` (titles, stat values, activity text) |
+| Text — secondary | `text-text-secondary` (subtitles, descriptions), `text-text-muted` (labels) |
+| Spacing          | `p-6` (cards padding), `gap-6` (grids gap), `px-8 py-8` (page layout padding), `pb-8` (timeline vertical gap) |
+| Hover state      | `hover:bg-accent-dark hover:shadow-md` (primary buttons), `hover:bg-surface-secondary` (secondary buttons) |
+| Shadow           | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]` (cards) |
+| Accent usage     | `bg-accent text-accent-foreground` (primary action buttons), `text-[#009966] bg-[#ECFDF5]` (trend badges), `text-accent`/`text-success`/`text-info`/`text-warning` (stat icons), custom activity dots |
+
+**Pattern notes:**
+- Consolidates the user welcome header, quick action buttons, incomplete profile alert, stat cards, recent activity, and dynamic recharts.
+- Uses `next/dynamic` with `ssr: false` to wrap chart SVGs to prevent hydration mismatch warnings on the server.
+- The chronological activity timeline uses relative positions and inline SVGs with a vertical connector line (`w-0.5 bg-border`) to show structural flow.
+
+
 

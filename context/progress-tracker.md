@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 4 — Job Details Page
-**Last completed:** 12 Job Details Page — Full UI
-**Next:** 13 Company Research Agent
+**Phase:** Phase 5 — Dashboard
+**Last completed:** 14 Dashboard Page — Full UI
+**Next:** 15 Stats Bar — Real Data
 
 ---
 
@@ -36,11 +36,11 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 4 — Job Details Page
 
 - [x] 12 Job Details Page — Full UI
-- [ ] 13 Company Research Agent
+- [x] 13 Company Research Agent
 
 ### Phase 5 — Dashboard
 
-- [ ] 14 Dashboard Page — Full UI
+- [x] 14 Dashboard Page — Full UI
 - [ ] 15 Stats Bar — Real Data
 - [ ] 16 Recent Activity — Real Data
 - [ ] 17 Analytics Charts — Real Data
@@ -78,6 +78,11 @@ Update this file after every completed feature. Any AI agent reading this should
 - **10 Adzuna Job Discovery** — Created `lib/adzuna.ts` with country code mapping and search service helpers, `agent/adzuna.ts` managing runs, log records, and batch Gemini 2.5 Flash matching (concurrency = 3), and POST `/api/agent/find` route handler. Wired `<SearchControls />` client form to submit requests and trigger Next.js page refresh fetching real `jobs` records.
 - **11 Filter + Sort + Pagination** — Connected filter dropdowns (All, Strong, Good matches), sort order dropdowns (Match Score, Newest, Oldest), text search filter, and page controls to database queries on the server. Applied a client-side 300ms debounce on search input changes and reset page indices to 1 on filter/sort changes.
 - **12 Job Details Page — Full UI** — Created the dynamic details page `app/find-jobs/[id]/page.tsx` and linked jobs table roles to it. Styled the page to match `job-details.png` layout. Resolved truncated description texts from the Adzuna API using a bottom fade-out gradient overlay and a direct link to the original listing.
+- **13 Company Research Agent** — Added `agent/research.ts` orchestrator that derives the employer homepage URL by following the Adzuna `redirect_url` (stripping subdomains, falling back to `www.{company}.com`), opens a single Browserbase session via Stagehand v3 (model `openai/gpt-4o`), extracts the homepage + up to 3 same-domain sub-pages (sorted by kind priority: engineering > product > about > blog > team > careers > other), closes the session, and synthesizes the 9-field dossier with Gemini 2.5 Flash (`temperature: 0.4`) using a `responseSchema`. Wrote `lib/browserbase.ts` + `lib/stagehand.ts` thin helpers and `POST /api/agent/research` route (auth + ownership check + idempotency short-circuit when `company_research` already exists). Built `components/job-details/CompanyResearch.tsx` Client Component that renders empty state + button, in-flight spinner card, dossier with sectioned rendering for all 9 fields (Your Edge in accent + emerald dots, Gaps to Address in amber, Smart Questions in accent, Sources as small links), and inline error + Retry on failure. Replaced the inline Company Research card markup in the details page.
+- **13 Company Research Agent** — Stagehand v3 API uses `model: { modelName, apiKey }` (not v2's `modelName` + `modelClientOptions`), `stagehand.extract(instruction, schema)` lives on the Stagehand instance, the page comes from `stagehand.context.pages()[0]`, and `page.goto()` takes `timeoutMs` (not `timeout`).
+- **13 Company Research Agent** — Stayed on Gemini 2.5 Flash for synthesis (matches the Adzuna scoring pattern) while Stagehand uses `gpt-4o` for its browser reasoning — added `OPENAI_API_KEY`, `BROWSERBASE_API_KEY`, `BROWSERBASE_PROJECT_ID` as required env vars. The agent always writes a dossier — if browser research fails or Browserbase is unconfigured, Gemini synthesizes from the job posting and profile alone with an empty `sources` array.
+
+- **14 Dashboard Page — Full UI** — Installed `recharts` (using `--legacy-peer-deps` to preserve React 19 / Next.js 16 environment). Designed client chart components (`ResumeTailoringChart.tsx`, `JobsFoundChart.tsx`, `MatchScoreChart.tsx`) styled precisely with design token colors (stroke width, grids, font size, axes) and embedded custom tooltips. Created `components/dashboard/DashboardClient.tsx` client wrapper rendering the top welcome header, custom action links (`/find-jobs`, `/profile`), 4 stat cards with green growth badges, recent activity list (5 entries) using custom activity dots (outer-ring + inner-dot), and the 3 dynamic charts imported with `ssr: false` to eliminate hydration mismatch warnings. Overwrote `app/dashboard/page.tsx` as a Server Component querying `profiles` table to fetch `is_complete` status, rendering Navbar, DashboardClient, and Footer in-line.
 
 ---
 

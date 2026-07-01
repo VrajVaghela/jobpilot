@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createInsforgeServer } from "@/lib/insforge-server";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CompanyResearch } from "@/components/job-details/CompanyResearch";
 
 /**
  * Simple helper to format dates relative to now.
@@ -259,35 +260,11 @@ export default async function JobDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Company Research Card */}
-          <div className="w-full rounded-2xl border border-border bg-surface p-6 shadow-sm flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-base font-bold text-text-primary">
-                <svg className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
-                </svg>
-                Company Research
-              </div>
-              <button className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-bold text-accent-foreground shadow-sm hover:opacity-90 transition-opacity">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z" />
-                </svg>
-                Research Company
-              </button>
-            </div>
-
-            <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-border-muted rounded-xl bg-surface-secondary">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-surface text-text-muted mb-4 border border-border shadow-sm">
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
-                </svg>
-              </div>
-              <h3 className="text-sm font-bold text-text-primary">No research yet</h3>
-              <p className="max-w-xs text-xs font-semibold text-text-secondary mt-1.5 leading-relaxed">
-                Click &ldquo;Research Company&rdquo; to let the AI browse {job.company || "the company"}&apos;s public pages and build a dossier.
-              </p>
-            </div>
-          </div>
+          <CompanyResearch
+            jobId={job.id}
+            companyName={job.company}
+            companyResearch={job.company_research || null}
+          />
 
           {/* Sticky Bottom Apply Button */}
           {job.external_apply_url || job.source_url ? (
