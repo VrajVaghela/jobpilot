@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 5 — Dashboard
-**Last completed:** 14 Dashboard Page — Full UI
-**Next:** 15 Stats Bar — Real Data
+**Last completed:** 15 Stats Bar — Real Data
+**Next:** 16 Recent Activity — Real Data
 
 ---
 
@@ -41,7 +41,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 5 — Dashboard
 
 - [x] 14 Dashboard Page — Full UI
-- [ ] 15 Stats Bar — Real Data
+- [x] 15 Stats Bar — Real Data
 - [ ] 16 Recent Activity — Real Data
 - [ ] 17 Analytics Charts — Real Data
 
@@ -83,6 +83,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - **13 Company Research Agent** — Stayed on Gemini 2.5 Flash for synthesis (matches the Adzuna scoring pattern) while Stagehand uses `gpt-4o` for its browser reasoning — added `OPENAI_API_KEY`, `BROWSERBASE_API_KEY`, `BROWSERBASE_PROJECT_ID` as required env vars. The agent always writes a dossier — if browser research fails or Browserbase is unconfigured, Gemini synthesizes from the job posting and profile alone with an empty `sources` array.
 
 - **14 Dashboard Page — Full UI** — Installed `recharts` (using `--legacy-peer-deps` to preserve React 19 / Next.js 16 environment). Designed client chart components (`ResumeTailoringChart.tsx`, `JobsFoundChart.tsx`, `MatchScoreChart.tsx`) styled precisely with design token colors (stroke width, grids, font size, axes) and embedded custom tooltips. Created `components/dashboard/DashboardClient.tsx` client wrapper rendering the top welcome header, custom action links (`/find-jobs`, `/profile`), 4 stat cards with green growth badges, recent activity list (5 entries) using custom activity dots (outer-ring + inner-dot), and the 3 dynamic charts imported with `ssr: false` to eliminate hydration mismatch warnings. Overwrote `app/dashboard/page.tsx` as a Server Component querying `profiles` table to fetch `is_complete` status, rendering Navbar, DashboardClient, and Footer in-line.
+- **15 Stats Bar — Real Data** — Extracted the inline stats cards from `DashboardClient` into a modular `components/dashboard/StatsBar.tsx` component. Configured parallel query execution (`Promise.all`) inside the server component `app/dashboard/page.tsx` to retrieve: user's total jobs count, matching scores to calculate average match rate in JS, count of researched jobs (`company_research` not null), and count of jobs created within the last 7 days. Omitted dynamic trend badges to optimize DB overhead, setting static subtitles instead.
 
 ---
 
