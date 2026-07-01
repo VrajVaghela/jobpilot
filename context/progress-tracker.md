@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Current Status
 
 **Phase:** Phase 5 — Dashboard
-**Last completed:** 16 Recent Activity — Real Data
-**Next:** 17 Analytics Charts — Real Data
+**Last completed:** 17 Analytics Charts — Real Data
+**Next:** None (Phase 5 and all project phases complete)
 
 ---
 
@@ -43,7 +43,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 14 Dashboard Page — Full UI
 - [x] 15 Stats Bar — Real Data
 - [x] 16 Recent Activity — Real Data
-- [ ] 17 Analytics Charts — Real Data
+- [x] 17 Analytics Charts — Real Data
 
 ---
 
@@ -84,6 +84,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - **14 Dashboard Page — Full UI** — Installed `recharts` (using `--legacy-peer-deps` to preserve React 19 / Next.js 16 environment). Designed client chart components (`ResumeTailoringChart.tsx`, `JobsFoundChart.tsx`, `MatchScoreChart.tsx`) styled precisely with design token colors (stroke width, grids, font size, axes) and embedded custom tooltips. Created `components/dashboard/DashboardClient.tsx` client wrapper rendering the top welcome header, custom action links (`/find-jobs`, `/profile`), 4 stat cards with green growth badges, recent activity list (5 entries) using custom activity dots (outer-ring + inner-dot), and the 3 dynamic charts imported with `ssr: false` to eliminate hydration mismatch warnings. Overwrote `app/dashboard/page.tsx` as a Server Component querying `profiles` table to fetch `is_complete` status, rendering Navbar, DashboardClient, and Footer in-line.
 - **15 Stats Bar — Real Data** — Extracted the inline stats cards from `DashboardClient` into a modular `components/dashboard/StatsBar.tsx` component. Configured parallel query execution (`Promise.all`) inside the server component `app/dashboard/page.tsx` to retrieve: user's total jobs count, matching scores to calculate average match rate in JS, count of researched jobs (`company_research` not null), and count of jobs created within the last 7 days. Omitted dynamic trend badges to optimize DB overhead, setting static subtitles instead.
 - **16 Recent Activity — Real Data** — Wired recent activity feed to real database records. Queried `agent_runs` table and `jobs` table (where `company_research` is not null) in parallel, merged them on the server, sorted by timestamp descending, and formatted them into human-readable strings with relative "time ago" timestamps on the server. Mapped activity types to custom dot styles (green for successful discovery runs, blue/purple for completed company research, red for failed runs) and handled the empty feed state.
+- **17 Analytics Charts — Real Data** — Wired the three Recharts dashboard charts to live database data from the `jobs` table for the user. Calculated a 30-day timeline of daily job discovery counts, mapped match scores to 5 distribution brackets (absorbing any scores < 50% into the 50-60% bracket), and grouped company research activity by day of the week. Added a totalCount check to display clean fallback text overlays when no data points are present instead of rendering empty chart coordinates. Optimized queries by consolidating database reads into a single query of `id, company, found_at, match_score, company_research` from `jobs`.
 
 ---
 

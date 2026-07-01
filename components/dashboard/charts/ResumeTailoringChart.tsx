@@ -31,8 +31,10 @@ const defaultMockData: ResumeTailoringDataPoint[] = [
 ];
 
 export default function ResumeTailoringChart({ data = defaultMockData }: ResumeTailoringChartProps) {
+  const totalCount = data?.reduce((sum, item) => sum + item.count, 0) || 0;
+
   // Check if data is empty
-  if (!data || data.length === 0) {
+  if (!data || data.length === 0 || totalCount === 0) {
     return (
       <div className="flex h-64 items-center justify-center text-sm text-text-muted">
         No tailoring activity recorded.

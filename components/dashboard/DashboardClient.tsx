@@ -61,9 +61,20 @@ interface DashboardClientProps {
     jobsThisWeek: number;
   };
   activities: ActivityItem[];
+  jobsFoundChartData: any[];
+  tailoringChartData: any[];
+  matchScoreChartData: any[];
 }
 
-export function DashboardClient({ userEmail, isProfileComplete, stats, activities }: DashboardClientProps) {
+export function DashboardClient({ 
+  userEmail, 
+  isProfileComplete, 
+  stats, 
+  activities,
+  jobsFoundChartData,
+  tailoringChartData,
+  matchScoreChartData
+}: DashboardClientProps) {
   const username = userEmail ? userEmail.split("@")[0] : "Developer";
 
   // Render correct dot color depending on activity type
@@ -173,7 +184,7 @@ export function DashboardClient({ userEmail, isProfileComplete, stats, activitie
                 Daily trend of jobs discovered by matching agents
               </p>
             </div>
-            <JobsFoundChart />
+            <JobsFoundChart data={jobsFoundChartData} />
           </div>
 
           {/* Sub Charts: Tailoring & Score Distribution */}
@@ -187,7 +198,7 @@ export function DashboardClient({ userEmail, isProfileComplete, stats, activitie
                   Resumes customized by day of the week
                 </p>
               </div>
-              <ResumeTailoringChart />
+              <ResumeTailoringChart data={tailoringChartData} />
             </div>
 
             <div className="rounded-xl border border-border bg-surface p-6 shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]">
@@ -199,7 +210,7 @@ export function DashboardClient({ userEmail, isProfileComplete, stats, activitie
                   Frequency of jobs by score ranges
                 </p>
               </div>
-              <MatchScoreChart />
+              <MatchScoreChart data={matchScoreChartData} />
             </div>
           </div>
         </div>

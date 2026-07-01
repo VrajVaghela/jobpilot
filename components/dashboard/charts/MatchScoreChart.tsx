@@ -29,7 +29,9 @@ const defaultMockData: MatchScoreDataPoint[] = [
 ];
 
 export default function MatchScoreChart({ data = defaultMockData }: MatchScoreChartProps) {
-  if (!data || data.length === 0) {
+  const totalCount = data?.reduce((sum, item) => sum + item.count, 0) || 0;
+
+  if (!data || data.length === 0 || totalCount === 0) {
     return (
       <div className="flex h-64 items-center justify-center text-sm text-text-muted">
         No match score data available.

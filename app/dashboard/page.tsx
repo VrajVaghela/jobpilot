@@ -41,15 +41,11 @@ export default async function DashboardPage() {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  // Fetch completeness, statistics, and recent activity feed in parallel
+  // Fetch profile completeness, jobs, and recent runs in parallel (consolidated query strategy)
   const [
     profileResult,
-    totalJobsResult,
-    scoresResult,
-    researchedResult,
-    jobsThisWeekResult,
+    jobsResult,
     recentRunsResult,
-    recentResearchResult,
   ] = await Promise.all([
     insforge.database
       .from("profiles")
@@ -58,67 +54,41 @@ export default async function DashboardPage() {
       .maybeSingle(),
     insforge.database
       .from("jobs")
-      .select("*", { count: "exact", head: true })
+      .select("id, company, found_at, match_score, company_research")
       .eq("user_id", user.id),
-    insforge.database
-      .from("jobs")
-      .select("match_score")
-      .eq("user_id", user.id),
-    insforge.database
-      .from("jobs")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .not("company_research", "is", null),
-    insforge.database
-      .from("jobs")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .gte("found_at", sevenDaysAgo.toISOString()),
     insforge.database
       .from("agent_runs")
       .select("id, status, job_title_searched, started_at, jobs_found")
       .eq("user_id", user.id)
       .order("started_at", { ascending: false })
       .limit(10),
-    insforge.database
-      .from("jobs")
-      .select("id, company, found_at")
-      .eq("user_id", user.id)
-      .not("company_research", "is", null)
-      .order("found_at", { ascending: false })
-      .limit(10),
   ]);
 
   if (profileResult.error) {
     console.error("[DashboardPage] Error fetching profile completeness:", profileResult.error);
   }
-  if (totalJobsResult.error) {
-    console.error("[DashboardPage] Error fetching total jobs count:", totalJobsResult.error);
-  }
-  if (scoresResult.error) {
-    console.error("[DashboardPage] Error fetching job scores:", scoresResult.error);
-  }
-  if (researchedResult.error) {
-    console.error("[DashboardPage] Error fetching researched companies count:", researchedResult.error);
-  }
-  if (jobsThisWeekResult.error) {
-    console.error("[DashboardPage] Error fetching jobs this week count:", jobsThisWeekResult.error);
+  if (jobsResult.error) {
+    console.error("[DashboardPage] Error fetching jobs data:", jobsResult.error);
   }
   if (recentRunsResult.error) {
     console.error("[DashboardPage] Error fetching recent agent runs:", recentRunsResult.error);
   }
-  if (recentResearchResult.error) {
-    console.error("[DashboardPage] Error fetching recent researched jobs:", recentResearchResult.error);
-  }
 
   const isProfileComplete = profileResult.data?.is_complete || false;
-  const totalJobsFound = totalJobsResult.count || 0;
-  const companiesResearched = researchedResult.count || 0;
-  const jobsThisWeek = jobsThisWeekResult.count || 0;
+  const jobs = jobsResult.data || [];
+  const totalJobsFound = jobs.length;
+  
+  // Filter jobs with company research complete
+  const researchedJobs = jobs.filter((j) => j.company_research !== null);
+  const companiesResearched = researchedJobs.length;
+
+  // Filter jobs created within the last 7 days
+  const jobsThisWeek = jobs.filter(
+    (j) => j.found_at && new Date(j.found_at) >= sevenDaysAgo
+  ).length;
 
   // Calculate average match rate
-  const scoreData = scoresResult.data || [];
-  const validScores = scoreData
+  const validScores = jobs
     .map((j) => j.match_score)
     .filter((s): s is number => s !== null && s !== undefined);
   const avgMatchRate = validScores.length > 0
@@ -134,7 +104,15 @@ export default async function DashboardPage() {
 
   // Process activities
   const recentRuns = recentRunsResult.data || [];
-  const recentResearch = recentResearchResult.data || [];
+  
+  // Sort researched jobs by found_at descending to get recent research activity
+  const recentResearch = [...researchedJobs]
+    .sort((a, b) => {
+      const aTime = a.found_at ? new Date(a.found_at).getTime() : 0;
+      const bTime = b.found_at ? new Date(b.found_at).getTime() : 0;
+      return bTime - aTime;
+    })
+    .slice(0, 10);
 
   interface ActivityItem {
     id: string;
@@ -146,7 +124,7 @@ export default async function DashboardPage() {
 
   const activities: ActivityItem[] = [];
 
-  // Add agent runs
+  // Add agent runs to activities
   recentRuns.forEach((run) => {
     let text = "";
     let type: "found" | "failed" | "running" = "found";
@@ -171,7 +149,7 @@ export default async function DashboardPage() {
     });
   });
 
-  // Add company research entries
+  // Add company research entries to activities
   recentResearch.forEach((job) => {
     activities.push({
       id: job.id,
@@ -182,11 +160,68 @@ export default async function DashboardPage() {
     });
   });
 
-  // Merge and sort all by timestamp descending, limit to top 5
+  // Merge and sort all activities by timestamp descending, limit to top 5
   const sortedActivities = activities
     .sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime())
     .slice(0, 5)
     .map(({ id, type, text, timestamp }) => ({ id, type, text, timestamp }));
+
+  // --- Compute 1. Jobs Found Over Time (Last 30 Days daily trend) ---
+  const jobsFoundChartData: { day: string; count: number }[] = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    jobsFoundChartData.push({ day: dateStr, count: 0 });
+  }
+
+  jobs.forEach((job) => {
+    if (job.found_at) {
+      const jobDate = new Date(job.found_at);
+      const jobDateStr = jobDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      const dayPoint = jobsFoundChartData.find((pt) => pt.day === jobDateStr);
+      if (dayPoint) {
+        dayPoint.count++;
+      }
+    }
+  });
+
+  // --- Compute 2. Match Score Distribution ---
+  const matchScoreChartData = [
+    { range: "50-60%", count: 0 },
+    { range: "60-70%", count: 0 },
+    { range: "70-80%", count: 0 },
+    { range: "80-90%", count: 0 },
+    { range: "90-100%", count: 0 },
+  ];
+
+  validScores.forEach((score) => {
+    if (score >= 90 && score <= 100) {
+      matchScoreChartData[4].count++;
+    } else if (score >= 80 && score < 90) {
+      matchScoreChartData[3].count++;
+    } else if (score >= 70 && score < 80) {
+      matchScoreChartData[2].count++;
+    } else if (score >= 60 && score < 70) {
+      matchScoreChartData[1].count++;
+    } else {
+      // Anything below 60% goes to 50-60% range (absorbed)
+      matchScoreChartData[0].count++;
+    }
+  });
+
+  // --- Compute 3. Company Research (Resume Tailoring) Activity ---
+  const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const tailoringChartData = weekdays.map((day) => ({ day, count: 0 }));
+
+  researchedJobs.forEach((job) => {
+    if (job.found_at) {
+      const date = new Date(job.found_at);
+      let dayIndex = date.getDay() - 1; // 0 is Sunday, 1 is Monday, etc.
+      if (dayIndex === -1) dayIndex = 6; // Map Sunday to index 6
+      tailoringChartData[dayIndex].count++;
+    }
+  });
 
   return (
     <>
@@ -197,6 +232,9 @@ export default async function DashboardPage() {
           isProfileComplete={isProfileComplete} 
           stats={stats}
           activities={sortedActivities}
+          jobsFoundChartData={jobsFoundChartData}
+          tailoringChartData={tailoringChartData}
+          matchScoreChartData={matchScoreChartData}
         />
       </main>
       <Footer />
